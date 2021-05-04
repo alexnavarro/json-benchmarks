@@ -1,7 +1,7 @@
 package com.dashlane.benchmarks.json
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_test.*
 import java.io.File
 import java.util.*

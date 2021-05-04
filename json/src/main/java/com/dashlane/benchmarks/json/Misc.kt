@@ -8,7 +8,6 @@ import java.text.NumberFormat
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
-typealias TestResult = Triple<Long, Long, Long>
 
 inline fun <reified T> Context.startActivity(block: Intent.() -> Unit) =
         startActivity(Intent(this, T::class.java).apply(block))

@@ -3,6 +3,10 @@ package com.dashlane.benchmarks.json.test1
 import com.dashlane.benchmarks.json.JsonTest
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -16,6 +20,9 @@ class Test1(override val json: String): JsonTest {
         registerTypeAdapterFactory(GsonAdaptersJsonInterface())
         create()
     }
+
+    @ExperimentalStdlibApi
+    private val moshiJsonAdapter = Moshi.Builder().build().adapter<Array<JsonEntityMoshi>>()
 
     override fun parseGson() {
         Gson().fromJson(json, Array<JsonEntity>::class.java)
@@ -31,6 +38,15 @@ class Test1(override val json: String): JsonTest {
             val jsonObject = jsonArray.getJSONObject(i)
             parseJsonEntity(jsonObject)
         }
+    }
+
+    override fun parseKotlinSerialization() {
+        Json.decodeFromString<Array<JsonEntityKotlinSerialization>>(json)
+    }
+
+    @ExperimentalStdlibApi
+    override fun parseMoshi() {
+        moshiJsonAdapter.fromJson(json)
     }
 
     private fun parseJsonEntity(jsonObject: JSONObject) = JsonEntity(

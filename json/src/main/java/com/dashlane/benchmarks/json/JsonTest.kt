@@ -13,6 +13,8 @@ interface JsonTest {
     fun parseGson()
     fun parseImmutableGson()
     fun parseOrgJson()
+    fun parseKotlinSerialization()
+    fun parseMoshi()
 
     interface Factory {
         val testName: String

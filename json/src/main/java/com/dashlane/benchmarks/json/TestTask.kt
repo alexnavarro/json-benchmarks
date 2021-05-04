@@ -46,17 +46,22 @@ class TestTask(
                 publishProgress(testIndex to idx)
                 runTestInstance(testFactory)
             }
+
             val jsonSize = testRun.average(TestRun::jsonSize)
             val writeFileDurationNanos = testRun.average(TestRun::writeFileDurationNanos)
             val testResults = testRun.map(TestRun::result)
-            val gsonNanoTime = testResults.average(TestResult::first)
-            val immutableGsonNanoTime = testResults.average(TestResult::second)
-            val jsonNanoTime = testResults.average(TestResult::third)
+            val gsonNanoTime = testResults.map { number -> number[0] }.average().toLong()
+            val immutableGsonNanoTime = testResults.map { number -> number[1] }.average().toLong()
+            val jsonNanoTime = testResults.map { number -> number[2] }.average().toLong()
+            val kotlinSerializeNanoTime = testResults.map { number -> number[3] }.average().toLong()
+            val moshiTime = testResults.map { number -> number[4] }.average().toLong()
             Log.i("[TEST] Average JSON size: ${formatSize(jsonSize)}")
             Log.i("[TEST] Average time to write JSON to file: ${formatDuration(writeFileDurationNanos)}")
             Log.i("[TEST] Average Gson time: ${formatDuration(gsonNanoTime)}")
             Log.i("[TEST] Average Immutable Gson time: ${formatDuration(immutableGsonNanoTime)}")
             Log.i("[TEST] Average JSON time: ${formatDuration(jsonNanoTime)}")
+            Log.i("[TEST] Average Kotlin Serialize time: ${formatDuration(kotlinSerializeNanoTime)}")
+            Log.i("[TEST] Average Moshi time: ${formatDuration(moshiTime)}")
         }
         Log.i("[TEST] Total running time ${formatDuration(timeNanos)}")
     }
@@ -67,13 +72,17 @@ class TestTask(
         val jsonLength = test.json.toByteArray().size
         val file = File(dir, UUID.randomUUID().toString())
         val writeJsonTimeNanos = measureNanoTime { file.writeText(test.json) }
-        val testResult = TestResult(
+        val testResult = listOf(
                 measureNanoTime { test.parseGson() }
                         .also { Log.d("[RunTest] Gson took $it nanoseconds") },
                 measureNanoTime { test.parseImmutableGson() }
                         .also { Log.d("[RunTest] Immutable Gson took $it nanoseconds") },
                 measureNanoTime { test.parseOrgJson() }
-                        .also { Log.d("[RunTest] JSON took $it nanoseconds") }
+                        .also { Log.d("[RunTest] JSON took $it nanoseconds") },
+            measureNanoTime { test.parseKotlinSerialization() }
+                .also { Log.d("[RunTest] Kotlin Serialize took $it nanoseconds") },
+            measureNanoTime { test.parseMoshi() }
+                .also { Log.d("[RunTest] Moshi took $it nanoseconds") }
         )
         return TestRun(jsonLength, writeJsonTimeNanos, testResult)
     }
@@ -81,6 +90,6 @@ class TestTask(
     private class TestRun(
             val jsonSize: Int,
             val writeFileDurationNanos: Long,
-            val result: TestResult
+            val result: List<Long>
     )
 }

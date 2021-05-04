@@ -1,6 +1,6 @@
 package com.dashlane.benchmarks.json
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.dashlane.benchmarks.json.test1.Test1
 import com.dashlane.benchmarks.json.test2.Test2
